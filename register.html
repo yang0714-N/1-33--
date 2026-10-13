@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册 · 张三 · 学号133</title>
+    <link rel="icon" href="logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 注册页专用样式，补充到原有style中 */
+        .error-msg { color: #e74c3c; font-size: 12px; margin-top: 4px; display: none; }
+        .form-row { display: flex; gap: 20px; flex-wrap: wrap; }
+        .form-row .form-group { flex: 1; min-width: 200px; }
+        .address-group { display: flex; gap: 10px; }
+        .address-group select { flex: 1; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; }
+        body.dark .address-group select { background-color: #3a3a50; color: #e0e0e0; border-color: #555; }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="logo">
+            <img src="logo.svg" alt="Logo" width="28" height="28" class="logo-svg">
+            张三 · 个人简介
+            <span class="badge"><i class="fas fa-user-graduate"></i> #133</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">首页</a>
+            <a href="index.html#about">关于我</a>
+            <a href="index.html#skills">技能</a>
+            <a href="index.html#projects">项目</a>
+            <a href="index.html#education">教育</a>
+            <a href="register.html" class="active">注册</a>
+            <a href="message.html">留言板</a>
+        </div>
+        <button id="themeBtn" class="theme-btn"><i class="fas fa-moon"></i> 深色</button>
+    </div>
+
+    <div class="container">
+        <div class="page-title">
+            <h1><i class="fas fa-user-plus"></i> 用户注册</h1>
+            <p>注册后方可使用留言板功能</p>
+        </div>
+
+        <div class="card">
+            <form id="registerForm" onsubmit="return validateForm(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>用户名 <span style="color:red">*</span></label>
+                        <input type="text" id="username" placeholder="16字符以内，字母数字下划线">
+                        <div class="error-msg" id="err-username">格式错误</div>
+                    </div>
+                    <div class="form-group">
+                        <label>密码 <span style="color:red">*</span></label>
+                        <input type="password" id="password" placeholder="12字符以内">
+                        <div class="error-msg" id="err-password">密码不一致或为空</div>
+                    </div>
+                    <div class="form-group">
+                        <label>确认密码 <span style="color:red">*</span></label>
+                        <input type="password" id="confirmPassword" placeholder="再次输入密码">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>单位名称</label>
+                        <input type="text" id="company">
+                    </div>
+                    <div class="form-group">
+                        <label>联系人姓名</label>
+                        <input type="text" id="contactName">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>联系地址 <span style="color:red">*</span></label>
+                    <div class="address-group">
+                        <select id="province" onchange="loadCities()"><option value="">--请选择省份--</option></select>
+                        <select id="city" onchange="loadDistricts()"><option value="">--请选择城市--</option></select>
+                        <select id="district"><option value="">--请选择城区--</option></select>
+                    </div>
+                    <div class="error-msg" id="err-address">请选择完整地址</div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>邮编</label>
+                        <input type="text" id="zipCode">
+                    </div>
+                    <div class="form-group">
+                        <label>移动电话</label>
+                        <input type="text" id="mobile">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="text" id="email">
+                        <div class="error-msg" id="err-email">邮箱格式不正确</div>
+                    </div>
+                    <div class="form-group">
+                        <label>身份证号码 <span style="color:red">*</span></label>
+                        <input type="text" id="idCard" placeholder="18位身份证号">
+                        <div class="error-msg" id="err-idcard">身份证号码不合法</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>忘记密码后查询时的问题 <span style="color:red">*</span></label>
+                        <input type="text" id="question">
+                    </div>
+                    <div class="form-group">
+                        <label>忘记密码后查询问题的答案 <span style="color:red">*</span></label>
+                        <input type="text" id="answer">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" style="margin-top: 15px;"><i class="fas fa-check"></i> 提交注册</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2026 张三 · 学号后三位 133 · 课程作业 · 参考阿里云镜像站风格
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // ================= 1. 地址数据模拟 =================
+        const addressData = {
+            "江苏省": {
+                "南京市": ["玄武区", "秦淮区", "建邺区", "鼓楼区", "浦口区", "栖霞区", "雨花台区", "江宁区"],
+                "无锡市": ["锡山区", "惠山区", "滨湖区", "梁溪区", "新吴区", "江阴市", "宜兴市"],
+                "徐州市": ["云龙区", "鼓楼区", "贾汪区", "泉山区", "铜山区"],
+                "盐城市": ["亭湖区", "盐都区", "大丰区", "响水县", "滨海县", "阜宁县", "射阳县", "建湖县", "东台市"]
+            },
+            "浙江省": { "杭州市": ["上城区", "下城区", "西湖区", "滨江区"], "宁波市": ["海曙区", "江北区"] },
+            "北京市": { "北京市": ["东城区", "西城区", "朝阳区", "海淀区"] }
+        };
+
+        window.onload = function() {
+            initProvince();
+            checkLoginStatus();
+        };
+
+        function initProvince() {
+            const provinceSelect = document.getElementById('province');
+            for (let province in addressData) {
+                let option = document.createElement('option');
+                option.value = province; option.text = province; provinceSelect.appendChild(option);
+            }
+        }
+
+        function loadCities() {
+            const province = document.getElementById('province').value;
+            const citySelect = document.getElementById('city');
+            const districtSelect = document.getElementById('district');
+            citySelect.innerHTML = '<option value="">--请选择城市--</option>';
+            districtSelect.innerHTML = '<option value="">--请选择城区--</option>';
+            if (province && addressData[province]) {
+                for (let city in addressData[province]) {
+                    let option = document.createElement('option'); option.value = city; option.text = city; citySelect.appendChild(option);
+                }
+            }
+        }
+
+        function loadDistricts() {
+            const province = document.getElementById('province').value;
+            const city = document.getElementById('city').value;
+            const districtSelect = document.getElementById('district');
+            districtSelect.innerHTML = '<option value="">--请选择城区--</option>';
+            if (province && city && addressData[province][city]) {
+                addressData[province][city].forEach(district => {
+                    let option = document.createElement('option'); option.value = district; option.text = district; districtSelect.appendChild(option);
+                });
+            }
+        }
+
+        // ================= 2. 身份证校验算法 =================
+        function validateIdCard(idCard) {
+            const reg = /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/;
+            if (!reg.test(idCard)) return false;
+            if (idCard.length === 18) {
+                const weights = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2];
+                const checkCodes = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+                let sum = 0;
+                for (let i = 0; i < 17; i++) { sum += parseInt(idCard.charAt(i)) * weights[i]; }
+                return idCard.charAt(17).toUpperCase() === checkCodes[sum % 11];
+            }
+            return true;
+        }
+
+        // ================= 3. 表单校验与注册 =================
+        function validateForm(event) {
+            event.preventDefault();
+            let isValid = true;
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const province = document.getElementById('province').value;
+            const city = document.getElementById('city').value;
+            const district = document.getElementById('district').value;
+            const email = document.getElementById('email').value.trim();
+            const idCard = document.getElementById('idCard').value.trim();
+
+            const userReg = /^[a-zA-Z0-9_]{1,16}$/;
+            if (!userReg.test(username)) { showError('err-username', true); isValid = false; } else { showError('err-username', false); }
+            if (password.length === 0 || password.length > 12 || password !== confirmPassword) { showError('err-password', true); isValid = false; } else { showError('err-password', false); }
+            if (!province || !city || !district) { showError('err-address', true); isValid = false; } else { showError('err-address', false); }
+            if (email && !/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(email)) { showError('err-email', true); isValid = false; } else { showError('err-email', false); }
+            if (!validateIdCard(idCard)) { showError('err-idcard', true); isValid = false; } else { showError('err-idcard', false); }
+
+            if (isValid) {
+                const userData = { username, password, address: province + city + district, idCard };
+                localStorage.setItem('registeredUser', JSON.stringify(userData));
+                alert('注册成功！即将跳转到留言板...');
+                window.location.href = 'message.html'; // 跳转到留言页
+            }
+        }
+
+        function showError(elementId, isShow) {
+            document.getElementById(elementId).style.display = isShow ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>
